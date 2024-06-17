@@ -1,0 +1,335 @@
+#+STARTUP Overview
+* Interface tweaks
+  #+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-message t)
+    (tool-bar-mode -1)
+    (fset 'yes-or-no-p 'y-or-n-p)
+    (global-set-key (kbd "<f5>") 'revert-buffer)
+  #+END_SRC
+
+* Ido mode
+
+#+BEGIN_SRC emacs-lisp
+  (setq indo-enable-flex-matching t)
+  (setq ido-everywhere t)
+  (ido-mode 1)
+#+END_SRC
+
+* org mode and bullets
+  #+BEGIN_SRC emacs-lisp
+    ;;(use-package org 
+    ;;:ensure t
+    ;;:pin org)
+    
+    (setenv "BROWSER" "firefox")
+      (use-package org-bullets
+	:ensure t
+	:config
+	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+	(setq org-todo-keywords
+    '((sequence "TODO" "NEXT" "PROJ" "|" "DONE" "CANCELLED")))
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)))
+   #+END_SRC
+   
+# * General text mode hooks
+#   #+BEGIN_SRC emacs-lisp
+#     (setq-default auto-fill-function 'do-auto-fill)
+#   #+END_SRC
+
+* ace window
+  #+BEGIN_SRC emacs-lisp
+    (use-package ace-window
+      :ensure t
+      :init
+      (progn
+	(setq aw-scope 'global) ;; was frame
+	(global-set-key (kbd "C-x O") 'other-frame)
+	(global-set-key [remap other-window] 'ace-window)
+	(custom-set-faces
+	 '(aw-leading-char-face
+	   ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+	))
+  #+END_SRC
+
+* Swiper / Ivy / Counsel
+  #+BEGIN_SRC emacs-lisp
+    (use-package counsel
+      :ensure t
+      :bind
+      (("M-y" . counsel-yank-pop)
+       :map ivy-minibuffer-map
+       ("M-y" . ivy-next-line)))
+
+
+
+
+      (use-package ivy
+      :ensure t
+      :diminish (ivy-mode)
+      :bind (("C-x b" . ivy-switch-buffer))
+      :config
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "%d/%d ")
+      (setq ivy-display-style 'fancy))
+
+
+      (use-package swiper
+      :ensure t
+      :bind (("C-s" . swiper-isearch)
+	     ("C-r" . swiper-isearch)
+	     ("C-c C-r" . ivy-resume)
+	     ("M-x" . counsel-M-x)
+	     ("C-x C-f" . counsel-find-file))
+      :config
+      (progn
+	(ivy-mode 1)
+	(setq ivy-use-virtual-buffers t)
+	(setq ivy-display-style 'fancy)
+	(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+	))
+  #+END_SRC
+  
+* Auto/Electric spacing
+  
+#+BEGIN_SRC emacs-lisp
+(use-package electric-spacing
+  :ensure t
+  :config (electric-pair-mode 1))
+#+END_SRC
+* avy mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package avy
+      :ensure t
+      :bind ("M-s" . avy-goto-word-1)) ;; changed from char as per jcs
+  #+END_SRC
+
+* company mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package company
+      :ensure t
+      :config
+      (setq company-idle-delay 0)
+      (setq company-minimum-prefix-length 3)
+      (global-company-mode t)
+      (with-eval-after-load 'company
+	(define-key company-active-map (kbd "TAB") 'company-complete-common-or-cycle)
+	))
+
+    (use-package company-irony
+      :ensure t
+      :config
+      (eval-after-load 'company
+	'(add-to-list 'company-backends 'company-irony)))
+
+    (defun my/python-mode-hook ()
+      (add-to-list 'company-backends 'company-jedi))
+
+    (add-hook 'python-mode-hook 'my/python-mode-hook)
+    
+
+    (defun my/python-mode-hook ()
+      (add-to-list 'company-backends 'company-jedi))
+
+    (add-hook 'python-mode-hook 'my/python-mode-hook)
+  #+END_SRC
+
+* flycheck
+  #+BEGIN_SRC emacs-lisp
+    (use-package flycheck
+      :ensure t
+      :init
+      (global-flycheck-mode t)
+      :config
+      (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+      )
+  #+END_SRC
+
+* yasnippet
+  #+BEGIN_SRC emacs-lisp
+    (use-package yasnippet
+      :ensure t
+      :init
+      (yas-global-mode 1))
+  #+END_SRC
+
+* Themes and modeline
+  #+BEGIN_SRC emacs-lisp
+    (use-package color-theme-modern
+      :ensure t)
+    (use-package zenburn-theme
+      :ensure t
+  
+      )
+
+    (use-package base16-theme
+      :ensure t
+      )
+    (use-package moe-theme
+      :ensure t)
+
+
+    (use-package alect-themes
+      :ensure t)
+
+    (use-package zerodark-theme
+      :ensure t)
+
+    (use-package faff-theme
+      :ensure t)
+    (use-package poet-theme
+      :ensure t)
+    (use-package tao-theme
+      :ensure t)
+					    ;(load-theme 'faff t)
+    (load-theme 'leuven t)
+  #+END_SRC
+
+* Latex
+  #+BEGIN_SRC emacs-lisp
+    (use-package tex
+      :after tex
+      :ensure auctex
+      :config
+      (setq TeX-auto-save t)
+      (setq TeX-parse-self t)
+      (setq-default TeX-master nil)
+      (add-hook 'LaTeX-mode-hook (lambda ()
+				   (TeX-fold-mode 1))))
+
+    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
+    (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
+  #+END_SRC
+
+# * Org-ref
+#   #+BEGIN_SRC emacs-lisp
+#     (use-package org-ref
+#       :after org
+#       :ensure t
+#       :init
+#       (setq reftex-default-bibliography '("~/Dropbox/Research/covid/references.bib"))
+#       (setq org-ref-bibliography-notes "~/Dropbox/Research/covid/notes/notes.org"
+# 	    org-ref-default-bibliography '("~/Dropbox/Research/covid/references.bib")
+# 	    org-ref-pdf-directory "~/Dropbox/Research/covid/papers/"))
+#   #+END_SRC
+
+
+* Language server
+  #+begin_src  emacs-lisp
+	(use-package eglot
+	  :ensure t
+	  :defer t
+	  :hook ((python-mode . eglot-ensure)
+		 (c++-mode . eglot-ensure)))
+  #+end_src
+
+* Tree-sitter
+    #+begin_src  emacs-lisp
+      (use-package tree-sitter
+	:ensure t
+	:config
+	(require 'tree-sitter-langs))
+
+      (use-package tree-sitter-langs
+	:ensure t)
+    #+end_src
+
+* vterm for REPL
+#+begin_src  emacs-lisp
+  (use-package vterm
+    :ensure t)
+#+end_src
+
+* julia lang
+#+begin_src  emacs-lisp
+  (use-package julia-mode
+    :ensure t)
+
+  (defun get-num-threads ()
+    "Get the number of available processors using the `nproc` command."
+    (string-trim (shell-command-to-string "nproc")))
+
+  (use-package julia-repl
+    :load-path "path-to-julia-repl"  ;; Replace with the actual path to julia-repl
+    :hook (julia-mode . julia-repl-mode)
+    :init
+    (set-language-environment "UTF-8")
+    (setenv "JULIA_NUM_THREADS" (get-num-threads))
+    :config
+    (julia-repl-set-terminal-backend 'vterm))
+
+#+end_src
+
+* quelpa installation and julia lsp
+
+#+begin_src  emacs-lisp
+  (defun get-julia-version ()
+    "Get the major.minor version of Julia installed."
+    (let* ((version-output (shell-command-to-string "julia --version"))
+	   (version-regexp "julia version \\([0-9]+\\.[0-9]+\\)")
+	   (version (if (string-match version-regexp version-output)
+			(match-string 1 version-output)
+		      "v1.6"))) ; Fallback to v1.6 if the version can't be determined
+      version))
+
+  ;; Ensure quelpa and quelpa-use-package are installed
+  (unless (package-installed-p 'quelpa)
+    (with-temp-buffer
+      (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+      (eval-buffer)
+      (quelpa-self-upgrade)))
+
+  (unless (package-installed-p 'quelpa-use-package)
+    (use-package quelpa
+      :ensure t
+      :init
+      (quelpa-self-upgrade))
+    (use-package quelpa-use-package
+      :ensure t))
+
+  ;; Install lsp-julia using quelpa
+  (quelpa '(lsp-julia :fetcher github
+		      :repo "non-Jedi/lsp-julia"
+		      :files (:defaults "languageserver")))
+
+  ;; Configure lsp-julia
+  (use-package lsp-julia
+    :config
+    (let ((julia-version (get-julia-version)))
+      (setq lsp-julia-default-environment (concat "~/.julia/environments/v" julia-version))))
+
+  ;; Enable lsp-mode for Julia
+  (add-hook 'julia-mode-hook #'lsp-mode)
+#+end_src
+
+# * julia snail
+
+# #+begin_src emacs-lisp
+#   (use-package vterm
+#     :ensure t)
+#   ;; Now run `M-x vterm` and make sure it works!
+
+#   (defun get-num-threads ()
+#     "Get the number of available processors using the `nproc` command."
+#     (string-trim (shell-command-to-string "nproc")))
+
+#   (use-package julia-mode
+#     :ensure t)
+
+#   ;; Ensure julia-snail is installed and configured
+#   (use-package julia-snail
+#     :ensure t
+#     :hook (julia-mode . julia-snail-mode)
+#     :init
+#     (set-language-environment "UTF-8")
+#     (setenv "JULIA_NUM_THREADS" (get-num-threads)))
+
+#   (use-package code-cells
+#     :ensure t
+#     :hook (julia-mode . code-cells-mode)
+#     :config
+#     (add-to-list 'code-cells-eval-region-commands '(julia-snail-mode . julia-snail-send-code-cell)))
+# #+end_src
